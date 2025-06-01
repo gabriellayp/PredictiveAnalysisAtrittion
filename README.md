@@ -47,11 +47,11 @@ Untuk mencapai tujuan tersebut, dilakukan pendekatan sebagai berikut:
 ### Deskripsi Dataset
 Dataset ini adalah **Synthetic Employee Attrition Dataset**, berupa data simulasi yang mencerminkan informasi demografis, pekerjaan, dan faktor personal karyawan. Dataset dibagi menjadi data pelatihan dan pengujian.
 
-- Total data: **74,498 records**
+- Total data: **14,900 records**
 - Label target: `Attrition` (0 = tetap, 1 = keluar)
 
 ### Link Dataset
-🔗 [Download from Kaggle](https://www.kaggle.com/datasets/aryashah2k/employee-attrition-dataset)
+🔗 [Download from Kaggle](https://www.kaggle.com/datasets/stealthtechnologies/employee-attrition-dataset/data)
 
 ### Fitur dalam Dataset
 
