@@ -1,4 +1,9 @@
 # 🔍 Predicting Employee Attrition with Machine Learning
+COHORT ID : MC008D5X2466
+
+Nama : Gabriella Yoanda Pelawi
+
+Email : mc008d5x2466@student.devacademy.id
 
 ## 1. 📁 Domain Proyek
 
@@ -99,7 +104,7 @@ Dataset ini adalah **Synthetic Employee Attrition Dataset**, berupa data simulas
 
 ---
 
-## 🤖 Modeling
+## 5. 🤖 Modeling
 
 ### Algoritma yang Digunakan
 
@@ -128,7 +133,7 @@ Dataset ini adalah **Synthetic Employee Attrition Dataset**, berupa data simulas
 
 ---
 
-## 📈 Evaluation
+## 6. 📈 Evaluation
 
 ### Metrik Evaluasi
 
@@ -143,21 +148,49 @@ Dataset ini adalah **Synthetic Employee Attrition Dataset**, berupa data simulas
 
 | Model           | Accuracy | Precision | Recall | F1 Score | ROC-AUC |
 |----------------|----------|-----------|--------|----------|---------|
-| Random Forest  | 89.2%    | 87.5%     | 85.0%  | 86.2%    | 0.91    |
-| Gradient Boost | 90.1%    | 88.4%     | 86.2%  | 87.3%    | 0.92    |
-| XGBoost        | **91.3%**| 89.2%     | 88.0%  | 88.6%    | **0.93**|
-| AdaBoost       | 88.5%    | 85.7%     | 83.0%  | 84.3%    | 0.89    |
+| Random Forest  | 74.7%    | 75.0%     | 74.5%  | 74.5%    | 0.72    |
+| Gradient Boost | 75.6%    | 75.5%     | 75.5%  | 75.5%    | 0.85    |
+| XGBoost        | 75.7%    | 75.5%     | 75.5%  | 75.5%    | 0.85    |
+| AdaBoost       | **76.6%**| **76.5%** | **76.0%**| **76.0%**| **0.86** |
 
-📌 **Model Terbaik: XGBoost**, karena memberikan skor F1 dan ROC-AUC tertinggi.
+📌 **Model Terbaik: AdaBoost**, karena memberikan skor F1 dan ROC-AUC tertinggi.
 
-### Confusion Matrix (XGBoost):
+### Confusion Matrix (AdaBoost):
 
 |                 | Predicted: Stay | Predicted: Leave |
 |-----------------|------------------|------------------|
-| **Actual: Stay**  | 10,250           | 430              |
-| **Actual: Leave** | 520              | 1,340            |
+| **Actual: Stay**  | 1292           | 466              |
+| **Actual: Leave** | 407              | 1560            |
+
+- True Positives (TP) = 1560
+→ Karyawan yang benar-benar resign (Leave) dan berhasil diprediksi dengan tepat sebagai resign.
+
+- True Negatives (TN) = 1292
+→ Karyawan yang benar-benar stay dan berhasil diprediksi dengan tepat sebagai stay.
+
+- False Positives (FP) = 407
+→ Karyawan yang sebenarnya resign, tetapi diprediksi akan stay.
+⚠️ Ini cukup penting karena bisa berdampak pada kurangnya antisipasi perusahaan terhadap potensi turnover.
+
+- False Negatives (FN) = 466
+→ Karyawan yang sebenarnya stay, tetapi diprediksi akan resign.
+⚠️ Ini bisa menyebabkan kesalahan alokasi sumber daya, seperti upaya retensi yang tidak perlu.
+---
 
 ---
 
-## 🗂 Struktur Repository
+## 7. ✅ Kesimpulan
+
+Proyek ini berhasil membangun model prediktif untuk mengklasifikasikan kemungkinan karyawan akan keluar dari perusahaan menggunakan berbagai algoritma machine learning.
+
+Dari empat model yang dibangun — Random Forest, Gradient Boosting, XGBoost, dan AdaBoost — model **AdaBoost** menunjukkan performa terbaik berdasarkan metrik **Accuracy, F1 Score, dan ROC-AUC**. Hal ini menunjukkan bahwa boosting sederhana dengan algoritma dasar seperti decision tree bisa sangat efektif bila dipadukan dengan tuning parameter yang optimal.
+
+Dengan memanfaatkan data historis karyawan dan pendekatan pembelajaran mesin, perusahaan kini memiliki alat yang lebih akurat untuk **mengidentifikasi risiko turnover lebih awal**, sehingga dapat mengambil langkah-langkah preventif dalam **retensi karyawan** dan **perencanaan SDM strategis**.
+
+📌 **Rekomendasi selanjutnya**:  
+- Integrasi model ke sistem HR secara real-time.  
+- Update data secara berkala untuk menjaga akurasi prediksi.  
+- Pertimbangkan explainable AI (XAI) untuk memahami lebih dalam faktor-faktor penyebab karyawan keluar.
+
+---
 
