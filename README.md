@@ -84,7 +84,7 @@ Dataset ini adalah **Synthetic Employee Attrition Dataset**, berupa data simulas
 
 ### Exploratory Data Analysis
 1. **Memeriksa Nilai yang Hilang (Missing Values)**
-   - Menggugunakan fungsi .isnull().sum(), namum pada data ini tidak ditemukan adanya missing values.
+   - Menggunakan fungsi .isnull().sum(), namum pada data ini tidak ditemukan adanya missing values.
      
 2. **Memeriksa Data Duplikat**
    - Menggunakan fungsi .duplicated().sum(), namun tidak ditemukan adanya indikasi duplikasi data.
@@ -112,7 +112,6 @@ Dataset ini adalah **Synthetic Employee Attrition Dataset**, berupa data simulas
 
 3. **Standarisasi Fitur Numerik**  
    - Dilakukan dengan **StandardScaler** untuk mengubah distribusi fitur numerik agar memiliki mean 0 dan standar deviasi 1.  
-   - Meskipun model tree-based tidak membutuhkan scaling, proses ini bermanfaat jika hasil evaluasi dibandingkan juga dengan model lain yang sensitif terhadap skala fitur (misal: Logistic Regression, SVM).
 
 4. **Train-Test Split**  
    - Data dibagi menjadi **75% untuk pelatihan** dan **25% untuk pengujian**.  
