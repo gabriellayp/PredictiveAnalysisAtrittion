@@ -66,10 +66,12 @@ Dataset ini adalah **Synthetic Employee Attrition Dataset**, berupa data simulas
 | Work-Life Balance | Keseimbangan kerja (Poor–Excellent) |
 | Job Satisfaction | Kepuasan kerja (Very Low–High) |
 | Performance Rating | Penilaian kinerja (Low–High) |
+| Overtime | Waktu Kerja di Luar Jam Normal |
 | Number of Promotions | Jumlah promosi |
 | Distance from Home | Jarak rumah ke kantor (mil) |
 | Education Level | Jenjang pendidikan (SMA–PhD) |
 | Marital Status | Status pernikahan |
+| Number of Dependents | Jumlah Tanggungan |
 | Job Level | Tingkat jabatan (Entry–Senior) |
 | Company Size | Ukuran perusahaan (Small–Large) |
 | Company Tenure | Lama bekerja di industri |
@@ -80,56 +82,106 @@ Dataset ini adalah **Synthetic Employee Attrition Dataset**, berupa data simulas
 | Employee Recognition | Tingkat pengakuan karyawan |
 | **Attrition** | Target: 0 (bertahan), 1 (keluar) |
 
+### Exploratory Data Analysis
+1. **Memeriksa Nilai yang Hilang (Missing Values)**
+   - Menggugunakan fungsi .isnull().sum(), namum pada data ini tidak ditemukan adanya missing values.
+     
+2. **Memeriksa Data Duplikat**
+   - Menggunakan fungsi .duplicated().sum(), namun tidak ditemukan adanya indikasi duplikasi data.
+     
+3. **Mengatasi Outlier pada Variabel Numerik**  
+   - Identifikasi dengan IQR dan visualisasi boxplot.  
+   - Dilakukan *capping* (winsorization) agar tetap mempertahankan volume data.
+
+4. **Menganalisis Distribusi Data**
+   - 
+   
 ---
 
 ## 4. 🧹 Data Preparation
 
 ### Teknik yang Diterapkan
 
-1. **Mengatasi Outlier pada Variabel Numerik**  
-   - Identifikasi dengan IQR dan visualisasi boxplot.  
-   - Dilakukan *capping* (winsorization) agar tetap mempertahankan volume data.
+1. **Menghapus Kolom UserID**  
+   - Kolom `UserID` bersifat identifikasi unik dan tidak berkontribusi pada pembelajaran model, sehingga dihapus untuk menghindari noise.
 
 2. **Encoding Fitur Kategorikal**  
-   - Menggunakan **Label Encoding** karena model tree-based tidak sensitif terhadap representasi numerik label.
+   - Menggunakan **Label Encoding** pada fitur kategorikal.  
+   - Alasan: Model berbasis pohon (seperti Random Forest, XGBoost) tidak terpengaruh oleh skala atau urutan numerik, sehingga label encoding lebih efisien dibanding one-hot encoding yang dapat memperbesar dimensi data.
 
-3. **Train-Test Split**  
-   - Pembagian data: **80% train**, **20% test**  
-   - Menggunakan stratified sampling agar distribusi label seimbang.
+3. **Standarisasi Fitur Numerik**  
+   - Dilakukan dengan **StandardScaler** untuk mengubah distribusi fitur numerik agar memiliki mean 0 dan standar deviasi 1.  
+   - Meskipun model tree-based tidak membutuhkan scaling, proses ini bermanfaat jika hasil evaluasi dibandingkan juga dengan model lain yang sensitif terhadap skala fitur (misal: Logistic Regression, SVM).
+
+4. **Train-Test Split**  
+   - Data dibagi menjadi **75% untuk pelatihan** dan **25% untuk pengujian**.  
+   - **Stratified sampling** digunakan untuk memastikan distribusi label target seimbang antara data pelatihan dan data uji.
 
 ### Alasan Data Preparation
-- Menangani outlier mencegah distorsi pembelajaran.
-- Label encoding efektif untuk model pohon.
+
+- **Menghapus kolom irrelevan** (seperti ID) mencegah kebocoran data dan fokus pada fitur prediktif.  
+- **Encoding kategorikal** dengan label encoding mempertahankan kesederhanaan dan efisiensi untuk model tree-based.  
+- **Standarisasi numerik** meningkatkan kompatibilitas jika digunakan bersama model lain di tahap eksplorasi atau ensemble.  
+- **Stratified split** menjaga proporsi kelas agar evaluasi model lebih akurat dan tidak bias terhadap kelas mayoritas.
 - Stratified split menjaga representasi label pada data uji.
 
 ---
 
 ## 5. 🤖 Modeling
 
-### Algoritma yang Digunakan
+### Algoritma yang Digunakan dan Cara Kerjanya
 
 1. **Random Forest Classifier**  
-   - Keunggulan: stabil, minim overfitting, efektif untuk data tabular.  
-   - Kekurangan: lebih lambat dalam prediksi dibanding model tunggal.
+   Random Forest merupakan algoritma ensemble berbasis *bagging* yang membangun banyak pohon keputusan (decision trees) selama pelatihan, lalu menggabungkan prediksi dari semua pohon untuk meningkatkan akurasi dan mengurangi overfitting.  
+   - **Keunggulan**: stabil, minim overfitting, efektif untuk data tabular.  
+   - **Kekurangan**: lebih lambat dalam prediksi dibanding model tunggal.  
+   - **Hyperparameter yang dituning dengan GridSearchCV**:
+     - `n_estimators`: [100, 200, 300]  
+     - `max_depth`: [None, 10, 20, 30]  
+     - `min_samples_split`: [2, 5, 10]  
+     - `min_samples_leaf`: [1, 2, 4]  
+     - `max_features`: ['auto', 'sqrt', 'log2']
 
 2. **Gradient Boosting Classifier**  
-   - Keunggulan: performa tinggi untuk data kompleks.  
-   - Kekurangan: lebih rentan terhadap overfitting tanpa regularisasi.
+   Gradient Boosting membangun model secara bertahap, di mana setiap pohon baru mencoba memperbaiki kesalahan dari model sebelumnya dengan mengoptimalkan fungsi loss melalui pendekatan *gradient descent*.  
+   - **Keunggulan**: performa tinggi untuk data kompleks.  
+   - **Kekurangan**: rentan overfitting tanpa regularisasi.  
+   - **Hyperparameter yang dituning dengan GridSearchCV**:
+     - `n_estimators`: [100, 200]  
+     - `learning_rate`: [0.01, 0.1]  
+     - `max_depth`: [3, 5, 10]  
+     - `subsample`: [0.8, 1.0]
 
 3. **XGBoost Classifier**  
-   - Keunggulan: cepat, teroptimasi, mendukung regularisasi.  
-   - Kekurangan: lebih kompleks dalam tuning hyperparameter.
+   XGBoost adalah implementasi yang efisien dari gradient boosting yang menggunakan pendekatan boosting berbasis *tree*. Ia mendukung regularisasi L1 dan L2 untuk menghindari overfitting, dan sangat dioptimalkan untuk kecepatan dan performa.  
+   - **Keunggulan**: cepat, teroptimasi, mendukung regularisasi.  
+   - **Kekurangan**: kompleks dalam tuning hyperparameter.  
+   - **Hyperparameter yang dituning dengan GridSearchCV**:
+     - `n_estimators`: [100, 200, 300]  
+     - `max_depth`: [3, 6, 10]  
+     - `learning_rate`: [0.001, 0.01, 0.1]  
+     - `subsample`: [0.8, 1.0]
 
 4. **AdaBoost Classifier**  
-   - Keunggulan: sederhana, efektif untuk dataset terbatas.  
-   - Kekurangan: sensitif terhadap data noise dan outlier.
+   AdaBoost bekerja dengan memberi bobot lebih besar pada instance yang salah diklasifikasikan oleh model sebelumnya, sehingga model selanjutnya fokus pada instance tersebut. Model akhir merupakan kombinasi dari semua model sebelumnya dengan bobot tertentu.  
+   - **Keunggulan**: sederhana, efektif untuk dataset terbatas.  
+   - **Kekurangan**: sensitif terhadap noise dan outlier.  
+   - **Hyperparameter yang dituning dengan GridSearchCV**:
+     - `n_estimators`: [50, 100, 200]  
+     - `learning_rate`: [0.01, 0.1, 1]
 
 ### Hyperparameter Tuning
-- Dilakukan menggunakan **GridSearchCV**.
-- Parameter yang dioptimasi: `n_estimators`, `max_depth`, `learning_rate`, `min_samples_split`.
+- Hyperparameter tuning dilakukan menggunakan **GridSearchCV** dengan 5-fold cross-validation dan pemanfaatan semua core (`n_jobs=-1`) untuk efisiensi komputasi.
+- Penilaian performa tuning menggunakan metrik **accuracy**.
+- Setiap model memiliki kombinasi parameter grid yang spesifik, seperti ditunjukkan di atas.
 
 ### Pemilihan Model Terbaik
-- Model dengan performa terbaik ditentukan berdasarkan metrik: **F1-Score**, **ROC-AUC**, dan **Confusion Matrix**.
+- Model terbaik dipilih berdasarkan evaluasi pada data pengujian menggunakan metrik:
+  - **F1-Score**
+  - **ROC-AUC**
+  - **Confusion Matrix**
+- Model dengan performa terbaik digunakan untuk prediksi akhir terhadap data uji.
+
 
 ---
 
@@ -137,21 +189,21 @@ Dataset ini adalah **Synthetic Employee Attrition Dataset**, berupa data simulas
 
 ### Metrik Evaluasi
 
-- **Accuracy** = (TP + TN) / Total  
-- **Precision** = TP / (TP + FP)  
-- **Recall** = TP / (TP + FN)  
-- **F1 Score** = 2 * (Precision * Recall) / (Precision + Recall)  
+- **Accuracy (weighted average)** = (TP + TN) / Total  
+- **Precision (weighted average)** = TP / (TP + FP)  
+- **Recall (weighted average)** = TP / (TP + FN)  
+- **F1 Score (weighted average)** = 2 * (Precision * Recall) / (Precision + Recall)  
 - **ROC-AUC** = Luas area di bawah kurva ROC  
 - **Confusion Matrix**: evaluasi klasifikasi dengan jumlah TP, TN, FP, dan FN.
 
-### Hasil Evaluasi Model
+### Hasil Evaluasi Model 
 
 | Model           | Accuracy | Precision | Recall | F1 Score | ROC-AUC |
 |----------------|----------|-----------|--------|----------|---------|
-| Random Forest  | 74.7%    | 75.0%     | 74.5%  | 74.5%    | 0.72    |
-| Gradient Boost | 75.6%    | 75.5%     | 75.5%  | 75.5%    | 0.85    |
-| XGBoost        | 75.7%    | 75.5%     | 75.5%  | 75.5%    | 0.85    |
-| AdaBoost       | **76.6%**| **76.5%** | **76.0%**| **76.0%**| **0.86** |
+| Random Forest  | 75%    | 75%     | 75%  | 75%    | 0.72    |
+| Gradient Boost | 76%    | 76%     | 76%  | 76%    | 0.85    |
+| XGBoost        | 76%    | 76%     | 76%  | 76%    | 0.85    |
+| **AdaBoost**       | **77%**| **77%** | **77%**| **77%**| **0.86** |
 
 📌 **Model Terbaik: AdaBoost**, karena memberikan skor F1 dan ROC-AUC tertinggi.
 
