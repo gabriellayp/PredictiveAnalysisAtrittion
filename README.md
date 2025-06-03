@@ -93,8 +93,9 @@ Dataset ini adalah **Synthetic Employee Attrition Dataset**, berupa data simulas
    - Identifikasi dengan IQR dan visualisasi boxplot.  
    - Dilakukan *capping* (winsorization) agar tetap mempertahankan volume data.
 
-4. **Menganalisis Distribusi Data**
-   - 
+4. **Distribusi Variabel Target**
+     ![Distribusi Attrition](https://github.com/gabriellayp/PredictiveAnalysisAtrittion/blob/main/images/outputatrrition.png?raw=true)
+     Visualisasi diatas menunjukkan bahwa distribusi label Attrition cukup seimbang, dengan jumlah karyawan yang bertahan (Stayed) sedikit lebih banyak dibanding yang resign (Left).
    
 ---
 
@@ -182,7 +183,6 @@ Dataset ini adalah **Synthetic Employee Attrition Dataset**, berupa data simulas
   - **Confusion Matrix**
 - Model dengan performa terbaik digunakan untuk prediksi akhir terhadap data uji.
 
-
 ---
 
 ## 6. 📈 Evaluation
@@ -222,14 +222,14 @@ Dataset ini adalah **Synthetic Employee Attrition Dataset**, berupa data simulas
 
 - False Positives (FP) = 407
 → Karyawan yang sebenarnya resign, tetapi diprediksi akan stay.
-⚠️ Ini cukup penting karena bisa berdampak pada kurangnya antisipasi perusahaan terhadap potensi turnover.
+⚠️ Hal ini cukup penting karena bisa berdampak pada kurangnya antisipasi perusahaan terhadap potensi turnover.
 
 - False Negatives (FN) = 466
 → Karyawan yang sebenarnya stay, tetapi diprediksi akan resign.
-⚠️ Ini bisa menyebabkan kesalahan alokasi sumber daya, seperti upaya retensi yang tidak perlu.
----
+⚠️ Hal ini bisa menyebabkan kesalahan alokasi sumber daya, seperti upaya retensi yang tidak perlu.
 
 ---
+
 
 ## 7. ✅ Kesimpulan
 
