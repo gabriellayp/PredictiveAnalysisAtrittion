@@ -88,12 +88,8 @@ Dataset ini adalah **Synthetic Employee Attrition Dataset**, berupa data simulas
      
 2. **Memeriksa Data Duplikat**
    - Menggunakan fungsi .duplicated().sum(), namun tidak ditemukan adanya indikasi duplikasi data.
-     
-3. **Mengatasi Outlier pada Variabel Numerik**  
-   - Identifikasi dengan IQR dan visualisasi boxplot.  
-   - Dilakukan *capping* (winsorization) agar tetap mempertahankan volume data.
-
-4. **Distribusi Variabel Target**
+   - 
+3. **Distribusi Variabel Target**
      ![Distribusi Attrition](https://github.com/gabriellayp/PredictiveAnalysisAtrittion/blob/main/images/outputatrrition.png?raw=true)
      Visualisasi diatas menunjukkan bahwa distribusi label Attrition cukup seimbang, dengan jumlah karyawan yang bertahan (Stayed) sedikit lebih banyak dibanding yang resign (Left).
    
@@ -103,27 +99,46 @@ Dataset ini adalah **Synthetic Employee Attrition Dataset**, berupa data simulas
 
 ### Teknik yang Diterapkan
 
-1. **Menghapus Kolom UserID**  
-   - Kolom `UserID` bersifat identifikasi unik dan tidak berkontribusi pada pembelajaran model, sehingga dihapus untuk menghindari noise.
+1. **Menghapus Kolom Identifikasi (`UserID`)**
+   - Kolom `UserID` merupakan identifikasi unik yang tidak memiliki makna prediktif.
+   - Karena kolom ini tidak memberikan informasi yang bermanfaat untuk proses pembelajaran model, kolom ini dihapus untuk mencegah noise dan potensi *data leakage*.
 
-2. **Encoding Fitur Kategorikal**  
-   - Menggunakan **Label Encoding** pada fitur kategorikal.  
-   - Alasan: Model berbasis pohon (seperti Random Forest, XGBoost) tidak terpengaruh oleh skala atau urutan numerik, sehingga label encoding lebih efisien dibanding one-hot encoding yang dapat memperbesar dimensi data.
+2. **Menangani Outlier pada Variabel Numerik**
+   - Deteksi outlier dilakukan menggunakan metode **Interquartile Range (IQR)**.
+     - Nilai batas bawah dihitung sebagai: `Q1 - 1.5 * IQR`
+     - Nilai batas atas dihitung sebagai: `Q3 + 1.5 * IQR`
+   - Setelah outlier teridentifikasi, dilakukan proses **capping (winsorization)**, yaitu mengganti nilai-nilai ekstrem dengan batas bawah atau batas atas IQR.
+   - Tujuan: menjaga jumlah data tetap utuh (tidak menghapus data) sekaligus mengurangi pengaruh outlier terhadap performa model.
 
-3. **Standarisasi Fitur Numerik**  
-   - Dilakukan dengan **StandardScaler** untuk mengubah distribusi fitur numerik agar memiliki mean 0 dan standar deviasi 1.  
+3. **Encoding Fitur Kategorikal**
+   - Seluruh fitur kategorikal diubah menjadi nilai numerik menggunakan **Label Encoding**.
+   - Alasan penggunaan Label Encoding:
+     - Model berbasis pohon keputusan (seperti Random Forest dan XGBoost) tidak terpengaruh oleh skala atau urutan numerik dari kategori.
+     - Label Encoding lebih efisien dalam memori dan waktu komputasi dibandingkan One-Hot Encoding, terutama jika kategori memiliki banyak nilai unik.
 
-4. **Train-Test Split**  
-   - Data dibagi menjadi **75% untuk pelatihan** dan **25% untuk pengujian**.  
-   - **Stratified sampling** digunakan untuk memastikan distribusi label target seimbang antara data pelatihan dan data uji.
+4. **Standarisasi Fitur Numerik**
+   - Seluruh fitur numerik distandarisasi menggunakan **StandardScaler** dari Scikit-Learn.
+   - Proses ini mengubah distribusi fitur sehingga memiliki **rata-rata = 0** dan **standar deviasi = 1**.
+   - Meskipun model tree-based tidak membutuhkan standarisasi, langkah ini tetap dilakukan untuk memungkinkan penggunaan model lain yang sensitif terhadap skala data (misalnya SVM, KNN, Logistic Regression).
 
-### Alasan Data Preparation
+5. **Split Data: Train dan Test**
+   - Dataset dibagi menjadi dua bagian: **75% untuk data latih (training set)** dan **25% untuk data uji (test set)**.
+   - Proses pembagian dilakukan dengan teknik **Stratified Sampling** berdasarkan label target (*Attrition*).
+   - Tujuan stratifikasi:
+     - Menjaga distribusi kelas target tetap seimbang antara data latih dan data uji.
+     - Mencegah bias model terhadap kelas mayoritas.
 
-- **Menghapus kolom irrelevan** (seperti ID) mencegah kebocoran data dan fokus pada fitur prediktif.  
-- **Encoding kategorikal** dengan label encoding mempertahankan kesederhanaan dan efisiensi untuk model tree-based.  
-- **Standarisasi numerik** meningkatkan kompatibilitas jika digunakan bersama model lain di tahap eksplorasi atau ensemble.  
-- **Stratified split** menjaga proporsi kelas agar evaluasi model lebih akurat dan tidak bias terhadap kelas mayoritas.
-- Stratified split menjaga representasi label pada data uji.
+---
+
+### Alasan dan Tujuan Data Preparation
+
+| Langkah | Tujuan |
+|--------|--------|
+| Menghapus kolom `UserID` | Menghindari noise dan mencegah data leakage dari fitur non-prediktif |
+| IQR Capping | Menangani outlier tanpa mengurangi jumlah data |
+| Label Encoding | Efisiensi pemrosesan dan kompatibilitas dengan model tree-based |
+| StandardScaler | Memastikan fitur numerik berada dalam skala yang sama, jika digunakan untuk model non-tree |
+| Stratified Train-Test Split | Menjamin distribusi target seimbang, evaluasi model lebih representatif |
 
 ---
 
@@ -199,7 +214,7 @@ Dataset ini adalah **Synthetic Employee Attrition Dataset**, berupa data simulas
 
 | Model           | Accuracy | Precision | Recall | F1 Score | ROC-AUC |
 |----------------|----------|-----------|--------|----------|---------|
-| Random Forest  | 75%    | 75%     | 75%  | 75%    | 0.72    |
+| Random Forest  | 75%    | 75%     | 75%  | 75%    | 0.84    |
 | Gradient Boost | 76%    | 76%     | 76%  | 76%    | 0.85    |
 | XGBoost        | 76%    | 76%     | 76%  | 76%    | 0.85    |
 | **AdaBoost**       | **77%**| **77%** | **77%**| **77%**| **0.86** |
@@ -208,22 +223,22 @@ Dataset ini adalah **Synthetic Employee Attrition Dataset**, berupa data simulas
 
 ### Confusion Matrix (AdaBoost):
 
-|                 | Predicted: Stay | Predicted: Leave |
-|-----------------|------------------|------------------|
-| **Actual: Stay**  | 1292           | 466              |
-| **Actual: Leave** | 407              | 1560            |
+|                 | Predicted: Left | Predicted: Stayed |
+|-----------------|------------------|--------------------|
+| **Actual: Left**   | 1292           | 466                |
+| **Actual: Stayed** | 407            | 1560               |
 
-- True Positives (TP) = 1560
+- True Positives (TP) = 1292
 → Karyawan yang benar-benar resign (Leave) dan berhasil diprediksi dengan tepat sebagai resign.
 
-- True Negatives (TN) = 1292
+- True Negatives (TN) = 1560
 → Karyawan yang benar-benar stay dan berhasil diprediksi dengan tepat sebagai stay.
 
-- False Positives (FP) = 407
+- False Positives (FP) = 466
 → Karyawan yang sebenarnya resign, tetapi diprediksi akan stay.
 ⚠️ Hal ini cukup penting karena bisa berdampak pada kurangnya antisipasi perusahaan terhadap potensi turnover.
 
-- False Negatives (FN) = 466
+- False Negatives (FN) = 407
 → Karyawan yang sebenarnya stay, tetapi diprediksi akan resign.
 ⚠️ Hal ini bisa menyebabkan kesalahan alokasi sumber daya, seperti upaya retensi yang tidak perlu.
 
